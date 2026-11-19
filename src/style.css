@@ -9,3 +9,40 @@
 .item-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.item-card{min-height:112px;padding:13px;border-radius:10px;background:#ffffff0c;border:1px solid #ffffff20;display:flex;flex-direction:column;gap:6px}.item-card span{font-size:25px}.item-card b{font-size:10px;letter-spacing:.1em}.item-card small{font-size:9px;color:#9eafc3}
 .quick-actions{position:absolute;right:26px;bottom:28px;display:flex;gap:8px;pointer-events:auto}.quick-btn{border:1px solid #ffffff40;border-radius:8px;background:#091524dd;color:#eaf6f6;padding:11px 13px;font:800 9px Inter;letter-spacing:.08em}
 @media(max-width:700px){.panel{padding:19px;top:48%;}.quick-actions{right:12px;top:126px;bottom:auto;flex-direction:column}.quick-btn{padding:9px 10px;font-size:8px}.help{display:none}.stats .stat:first-child{min-width:116px}.stats .stat.compact{min-width:64px}.item-card{min-height:100px}#mobile-controls{display:block}#interact-btn-mobile{display:block;position:absolute;right:112px;bottom:52px;width:48px;height:48px;border-radius:50%;background:#15253acc;color:#fff;border:1px solid #ffffff66;font-size:15px}#jump-btn{right:174px;bottom:56px;width:48px;height:48px}#fire-btn{right:25px;bottom:64px;width:66px;height:66px}#joystick{bottom:38px;left:18px;width:108px;height:108px}#stick{left:32px;top:32px}}
+
+/* Responsive polish: safe areas, compact mobile HUD, readable touch targets */
+:root{--vex-safe-top:env(safe-area-inset-top,0px);--vex-safe-bottom:env(safe-area-inset-bottom,0px)}
+.topbar{padding-top:var(--vex-safe-top);height:calc(72px + var(--vex-safe-top))}
+#game-ui{position:absolute;inset:0;pointer-events:none}
+.stats{max-width:min(560px,calc(100vw - 120px));gap:8px}
+.stat{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+button,input,select{touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #50e4c5;outline-offset:3px}
+.panel{padding-bottom:calc(20px + var(--vex-safe-bottom));}
+#mobile-controls{padding-bottom:var(--vex-safe-bottom)}
+@media(max-width:700px){
+ .topbar{height:calc(60px + var(--vex-safe-top));padding-left:16px;padding-right:16px}
+ .brand{font-size:13px;letter-spacing:.14em}.brand-mark{width:30px;height:30px}
+ .top-actions{gap:7px}.icon-btn{width:39px;height:39px}
+ .stats{top:calc(72px + var(--vex-safe-top));left:12px;right:86px;max-width:none;display:grid;grid-template-columns:1.2fr .9fr .8fr;gap:6px}
+ .stat{padding:9px 8px;min-width:0!important;border-radius:10px}
+ .stat small{font-size:8px;letter-spacing:.1em}.stat b{font-size:19px}
+ .health-track{height:6px}.leave-btn{top:calc(74px + var(--vex-safe-top));right:12px;padding:10px 13px}
+ .quick-actions{top:calc(132px + var(--vex-safe-top));right:12px}
+ .quick-btn{font-size:8px;padding:9px 10px}
+ .help{display:none}
+ #joystick{width:116px;height:116px;left:18px;bottom:calc(30px + var(--vex-safe-bottom))}
+ #stick{width:43px;height:43px;left:36px;top:36px}
+ #jump-btn{right:174px;bottom:calc(54px + var(--vex-safe-bottom));width:48px;height:48px}
+ #interact-btn-mobile{right:118px;bottom:calc(54px + var(--vex-safe-bottom));width:48px;height:48px}
+ #fire-btn{right:24px;bottom:calc(48px + var(--vex-safe-bottom));width:70px;height:70px}
+ .panel{width:calc(100% - 24px);max-height:calc(82dvh - var(--vex-safe-bottom));border-radius:18px}
+ .overlay{padding:calc(76px + var(--vex-safe-top)) 16px 28px;align-items:center}
+ .hero-card{width:min(100%,440px)}
+}
+@media(max-width:380px){
+ .stats{right:78px;gap:4px}.stat{padding:7px 6px}.stat small{font-size:7px}
+ .quick-actions{top:calc(126px + var(--vex-safe-top))}
+ #joystick{width:100px;height:100px}#stick{left:29px;top:29px}
+ #jump-btn{right:152px}#interact-btn-mobile{right:98px}
+}
