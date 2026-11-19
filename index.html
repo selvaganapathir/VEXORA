@@ -1,30 +1,26 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#080d19" />
-    <meta name="description" content="VEXORA — Play. Create. Conquer. A fast, social 3D browser arena." />
-    <title>VEXORA — Play. Create. Conquer.</title>
-  </head>
-  <body>
-    <div id="app">
-      <div id="hud">
-        <header class="topbar"><div class="brand"><span class="brand-mark">V</span><span>VEXORA</span></div><div class="top-actions"><span id="net-status" class="status">OFFLINE</span><button id="sound-btn" class="icon-btn" aria-label="Toggle sound">♫</button></div></header>
-        <section id="start-screen" class="overlay">
-          <div class="hero-card"><p class="eyebrow">A NEW WORLD IS WAITING</p><h1>PLAY. CREATE.<br><em>CONQUER.</em></h1><p class="intro">Drop into the arena. Explore, train and challenge other players.</p><label class="name-label" for="player-name">YOUR PLAYER NAME</label><input id="player-name" maxlength="16" value="Player" autocomplete="nickname" /><button id="play-btn" class="primary-btn">ENTER THE ARENA <span>→</span></button><p class="microcopy">Browser preview · No account required</p></div>
-          <div class="feature-strip"><span>◈ 3D WORLD</span><span>◉ LIVE ARENA</span><span>⌁ MOBILE READY</span></div>
-        </section>
-        <section id="game-ui" class="hidden">
-          <div class="stats"><div class="stat"><small>HEALTH</small><div class="health-track"><div id="health-fill"></div></div><b id="health-text">100</b></div><div class="stat compact"><small>ELIMINATIONS</small><b id="kills">0</b></div><div class="stat compact"><small>PLAYERS</small><b id="players">1</b></div></div>
-          <div class="crosshair">+</div><div id="toast" class="toast"></div>
-          <div class="help"><b>WASD</b> move <span>·</span> <b>SPACE</b> jump <span>·</span> <b>CLICK</b> fire <span>·</span> <b>ESC</b> pause</div>
-          <div id="mobile-controls"><div id="joystick"><div id="stick"></div></div><button id="jump-btn">↑</button><button id="fire-btn">●</button></div>
-          <button id="leave-btn" class="leave-btn">LEAVE</button>
-        </section>
-      </div>
-      <canvas id="game-canvas"></canvas>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
-</html>
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta name="theme-color" content="#080d19"/><meta name="description" content="VEXORA — Play. Create. Explore."/><title>VEXORA — Play. Create. Conquer.</title>
+</head>
+<body><div id="app">
+<div id="hud">
+<header class="topbar"><div class="brand"><span class="brand-mark">V</span><span>VEXORA</span></div><div class="top-actions"><span id="net-status" class="status">PRACTICE</span><button id="settings-btn" class="icon-btn" aria-label="Settings">⚙</button><button id="sound-btn" class="icon-btn" aria-label="Sound">♫</button></div></header>
+<section id="start-screen" class="overlay"><div class="hero-card"><p class="eyebrow">YOUR WORLD. YOUR ADVENTURE.</p><h1>PLAY. CREATE.<br><em>CONQUER.</em></h1><p class="intro">Explore a living 3D town, meet characters, train, gear up and make your own story.</p><label class="name-label" for="player-name">PLAYER NAME</label><input id="player-name" maxlength="16" value="Player" autocomplete="nickname"/><button id="play-btn" class="primary-btn">ENTER VEXORA <span>→</span></button><p class="microcopy">Browser preview · No account required · Mobile ready</p></div><div class="feature-strip"><span>◈ 3D WORLD</span><span>◉ LIVING NPCs</span><span>⌁ MOBILE CONTROLS</span></div></section>
+<section id="game-ui" class="hidden">
+<div class="stats"><div class="stat"><small>HEALTH</small><div class="health-track"><div id="health-fill"></div></div><b id="health-text">100</b></div><div class="stat compact"><small>ELIMINATIONS</small><b id="kills">0</b></div><div class="stat compact"><small>POPULATION</small><b id="players">9</b></div></div>
+<div class="crosshair">+</div><div id="toast" class="toast"></div><button id="leave-btn" class="leave-btn">EXIT</button>
+<div class="quick-actions"><button id="inventory-btn" class="quick-btn">🎒 INVENTORY</button><button id="interact-btn" class="quick-btn">✦ INTERACT [E]</button></div>
+<div class="help"><b>WASD</b> move · <b>SHIFT</b> sprint · <b>CTRL</b> crouch · <b>SPACE</b> jump · <b>CLICK</b> use · <b>E</b> interact · <b>I</b> inventory</div>
+<div id="mobile-controls"><div id="joystick"><div id="stick"></div></div><button id="jump-btn">↑</button><button id="interact-btn-mobile" class="mobile-action">E</button><button id="fire-btn">●</button></div>
+</section>
+<section id="settings-panel" class="panel hidden"><div class="panel-head"><div><p class="eyebrow">PERSONALIZE YOUR EXPERIENCE</p><h2>SETTINGS</h2></div><button id="close-settings" class="close-btn">×</button></div>
+<label>GRAPHICS QUALITY<select id="quality-select"><option value="low">Low · Battery saver</option><option value="medium">Medium · Balanced</option><option value="high" selected>High · Best visuals</option></select></label>
+<div class="range-row"><label for="fov-range">CAMERA FIELD OF VIEW <b id="fov-value">68</b></label><input id="fov-range" type="range" min="55" max="95" value="68"/></div>
+<div class="range-row"><label for="sensitivity-range">LOOK SENSITIVITY <b id="sensitivity-value">100%</b></label><input id="sensitivity-range" type="range" min="40" max="200" value="100"/></div>
+<p class="settings-note">Low graphics reduces render resolution. High enables real-time shadows. Performance depends on your device.</p></section>
+<section id="inventory-panel" class="panel inventory hidden"><div class="panel-head"><div><p class="eyebrow">YOUR LOADOUT</p><h2>INVENTORY</h2></div><button id="close-inventory" class="close-btn">×</button></div>
+<label>EQUIPPED ITEM<select id="equip-select"><option>Blaster</option><option>Energy Staff</option><option>Training Gloves</option></select></label>
+<div class="item-grid"><div class="item-card"><span>🔫</span><b>BLASTER</b><small>Ranged · 50 damage</small></div><div class="item-card"><span>⚡</span><b>ENERGY STAFF</b><small>Close range · 25 damage</small></div><div class="item-card"><span>🥊</span><b>TRAINING GLOVES</b><small>Unarmed practice</small></div><div class="item-card"><span>🎒</span><b>TRAVEL PACK</b><small>Cosmetic accessory</small></div></div></section>
+</div><canvas id="game-canvas"></canvas></div>
+<script type="module" src="/src/main.ts"></script></body></html>
