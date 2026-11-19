@@ -111,7 +111,7 @@ function useCharacterModel(root:THREE.Group,gender:CharacterGender){
  characterTargets.push({root,gender});
  if(characterLoading.has(gender))return;
  characterLoading.add(gender);
- assetLoader.load('/assets/characters/Superhero_'+(gender==='male'?'Male':'Female')+'_FullBody.gltf',g=>{
+ assetLoader.load(import.meta.env.BASE_URL+'assets/characters/Superhero_'+(gender==='male'?'Male':'Female')+'_FullBody.gltf',g=>{
   characterSources.set(gender,g.scene);
   for(const target of characterTargets.filter(t=>t.gender===gender&&t.root.parent))attachCharacterModel(target.root,gender,g.scene);
  },undefined,error=>console.warn('Character model failed to load:',gender,error));
