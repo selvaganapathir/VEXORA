@@ -66,7 +66,7 @@ function makeAvatar(color:number, outfit='casual'):Avatar{
 const player=makeAvatar(0x43cbb7);scene.add(player.root);
 const bots:Bot[]=[];const botColors=[0xff795f,0xffc857,0x9c83ff,0x70a7ff,0xe77ea9,0x91c46b,0xd19b6d,0x69b7c7,0xd98d54,0x65a9a0,0xb17ca1,0xc3b36d];
 const jobs=[{role:'shopkeeper',route:[[-13,-15],[-13,-15],[-13,-15]]},{role:'courier',route:[[5,-8],[35,-8],[35,28],[5,28]]},{role:'gardener',route:[[-36,35],[-52,35],[-52,55],[-36,55]]},{role:'builder',route:[[40,-40],[58,-40],[58,-20],[40,-20]]},{role:'guard',route:[[0,-28],[0,28],[28,28],[28,-28]]},{role:'citizen',route:[[-30,-20],[-30,22],[25,22],[25,-20]]},{role:'vendor',route:[[14,14],[14,14],[14,14]]},{role:'cleaner',route:[[-20,0],[-20,22],[20,22],[20,0]]},{role:'student',route:[[48,48],[62,48],[62,62],[48,62]]},{role:'mechanic',route:[[70,5],[88,5],[88,22],[70,22]]},{role:'dog walker',route:[[-75,-20],[-60,-20],[-60,-38],[-75,-38]]},{role:'resident',route:[[80,-55],[98,-55],[98,-35],[80,-35]]}];
-for(let i=0;i<jobs.length;i++){const a=makeAvatar(botColors[i]);const job=jobs[i];const route=job.route.map(p=>new THREE.Vector3(p[0],0,p[1]));a.root.position.copy(route[0]);scene.add(a.root);bots.push({root:a.root,hp:100,alive:true,respawn:0,phase:i*1.7,state:'wander',target:route[0].clone(),mood:i%4,speed:job.role==='courier'?2.8:1.1+(i%3)*.35,color:botColors[i],role:job.role,route,waypoint:1,work:0});}
+for(let i=0;i<jobs.length;i++){const a=makeAvatar(botColors[i]);const job=jobs[i];const route=job.route.map(p=>new THREE.Vector3(p[0],0,p[1]));a.root.userData.limbs=[a.leftArm,a.rightArm,a.leftLeg,a.rightLeg];a.root.position.copy(route[0]);scene.add(a.root);bots.push({root:a.root,hp:100,alive:true,respawn:0,phase:i*1.7,state:'wander',target:route[0].clone(),mood:i%4,speed:job.role==='courier'?2.8:1.1+(i%3)*.35,color:botColors[i],role:job.role,route,waypoint:1,work:0});}
 const remotes=new Map<string,{avatar:Avatar;target:THREE.Vector3;name:string}>();
 const keys=new Set<string>(),playerPos=new THREE.Vector3(0,0,5),raycaster=new THREE.Raycaster(),clock=new THREE.Clock();
 let yaw=0,pitch=-.12,vy=0,health=100,kills=0,playing=false,pointerLocked=false,fireCooldown=0,network:WebSocket|null=null,ownId='',joystick={x:0,y:0},touchLook=false,lastTouchX=0,lastTouchY=0,lastNetSend=0,toastTimer=0,walkPhase=0;
@@ -101,7 +101,7 @@ canvas.addEventListener('touchstart',e=>{if(!playing)return;const t=e.changedTou
 canvas.addEventListener('touchmove',e=>{if(!touchLook)return;const t=e.changedTouches[0];look(t.clientX-lastTouchX,t.clientY-lastTouchY);lastTouchX=t.clientX;lastTouchY=t.clientY;},{passive:true});canvas.addEventListener('touchend',()=>touchLook=false);
 const joy=$('joystick'),stick=$('stick');joy.addEventListener('pointerdown',e=>{joy.setPointerCapture(e.pointerId);updateJoy(e);});joy.addEventListener('pointermove',e=>{if(e.buttons)updateJoy(e);});joy.addEventListener('pointerup',()=>{joystick={x:0,y:0};stick.style.transform='translate(0,0)';});
 function updateJoy(e:PointerEvent){const r=joy.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,len=Math.max(1,Math.hypot(dx,dy)),s=Math.min(1,40/len);joystick={x:dx/len*s,y:dy/len*s};stick.style.transform=`translate(${joystick.x*40}px,${joystick.y*40}px)`;}
-function animateAvatar(a:Avatar,phase:number,moving:boolean,working=false){const swing=moving?Math.sin(phase)*.62:Math.sin(phase*1.4)*.035;a.leftArm.rotation.x=working?-.9:swing*.75;a.rightArm.rotation.x=working?-.65:-swing*.75;a.leftLeg.rotation.x=-swing;a.rightLeg.rotation.x=swing;a.root.position.y+=(Math.sin(phase*2)*.018-(a.root.position.y*.0));}
+function animateAvatar(a:Avatar,phase:number,moving:boolean,working=false){const swing=moving?Math.sin(phase)*.62:Math.sin(phase*1.4)*.035;a.leftArm.rotation.x=working?-.9:swing*.75;a.rightArm.rotation.x=working?-.65:-swing*.75;a.leftLeg.rotation.x=-swing;a.rightLeg.rotation.x=swing;}
 function update(dt:number){
  if(!playing)return;fireCooldown=Math.max(0,fireCooldown-dt);toastTimer-=dt;if(toastTimer<=0)toast.classList.remove('visible');
  const f=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-joystick.y,s=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)+joystick.x;
@@ -121,9 +121,9 @@ function update(dt:number){
   else if(!workRole){b.work+=dt;if(b.work>2.5){b.work=0;b.waypoint=(b.waypoint+1)%b.route.length;}}
   else {b.root.rotation.y=Math.sin(b.phase*.45)*.35; }
   // small job-specific motions: sweeping, gardening, building, serving and shop idles
-  const isWorking=!moving&&workRole;const avatar:Avatar={root:b.root,leftArm:b.root.children[0] as THREE.Group,rightArm:b.root.children[0] as THREE.Group,leftLeg:b.root.children[0] as THREE.Group,rightLeg:b.root.children[0] as THREE.Group};
+  const isWorking=!moving&&workRole;
   const swing=moving?Math.sin(b.phase*7)*.55:0;
-  const limbs=b.root.children.filter(o=>o instanceof THREE.Group);
+  const limbs=(b.root.userData.limbs||[]) as THREE.Group[];
   if(limbs.length>=4){(limbs[0] as THREE.Group).rotation.x=isWorking?Math.sin(b.phase*3)*.65:swing*.7;(limbs[1] as THREE.Group).rotation.x=isWorking?-.5:-swing*.7;(limbs[2] as THREE.Group).rotation.x=-swing;(limbs[3] as THREE.Group).rotation.x=swing;}
   b.root.position.y=moving?Math.abs(Math.sin(b.phase*8))*.055:Math.sin(b.phase*2)*.012;
  }
