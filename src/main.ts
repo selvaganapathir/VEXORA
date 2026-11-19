@@ -54,7 +54,8 @@ function buildWorld(){
   for(let i=0;i<6;i++){const x=-20+i*8; box(world,2.4,.25,.55,0x79563c,x,.65,7); box(world,.18,.6,.18,0x3c4850,x-1,.3,7);box(world,.18,.6,.18,0x3c4850,x+1,.3,7);}
   const treeFiles=['Tree.glb','Pine.glb','Twisted Tree.glb','Dead Tree.glb'];
   for(let i=0;i<32;i++){const radius=44+(i%4)*18,x=Math.sin(i*2.2)*radius,z=Math.cos(i*2.2)*radius;const tree=treeFiles[i%treeFiles.length];loadWorldModel('environment/vegetation/polypizza-stylized-nature-gltf/'+tree,new THREE.Vector3(x,0,z),i%4===1?9:6.5,(i%7)*.72);}
-  for(let i=0;i<18;i++){const x=-78+i*9;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,4,8),mat(0x37404a));pole.position.set(x,2,-8);world.add(pole);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.24,10,8),new THREE.MeshStandardMaterial({color:0xffe5a2,emissive:0xffb54a,emissiveIntensity:.8}));lamp.position.set(x,4,-8);world.add(lamp);}
+  // Street-light props are real CC0 GLB models rather than cylinders and spheres.
+  for(let i=0;i<18;i++){const x=-78+i*9;loadWorldModel('props/kenney-city-kit-roads/Models/GLB format/light-square.glb',new THREE.Vector3(x,0,-8),5.2,Math.PI);}
 }
 buildWorld();
 
