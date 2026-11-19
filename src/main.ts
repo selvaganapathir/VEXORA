@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import './style.css';
 
 type Bot = { root: THREE.Group; hp: number; alive: boolean; respawn: number; phase: number; state: 'wander'|'approach'|'retreat'|'guard'; target: THREE.Vector3; mood: number; speed: number; color: number; role:string; route:THREE.Vector3[]; waypoint:number; work:number; };
@@ -64,6 +65,8 @@ function makeAvatar(color:number, outfit='casual'):Avatar{
  return {root,leftArm,rightArm,leftLeg,rightLeg};
 }
 const player=makeAvatar(0x43cbb7);scene.add(player.root);
+const petGroup=new THREE.Group();scene.add(petGroup);let petMixer:THREE.AnimationMixer|null=null;let petWalk:THREE.AnimationAction|null=null;let petIdle:THREE.AnimationAction|null=null;let petReady=false;let petTarget=new THREE.Vector3(13,0,18);let petPhase=0;
+const petLoader=new GLTFLoader();petLoader.load('https://gobkit.com/freebies/animal/Corgi.glb',g=>{const dog=g.scene;const bounds=new THREE.Box3().setFromObject(dog);const size=bounds.getSize(new THREE.Vector3());dog.scale.setScalar(1.15/Math.max(size.y,.001));dog.position.y=0;dog.rotation.y=Math.PI;dog.traverse(o=>{if((o as THREE.Mesh).isMesh){(o as THREE.Mesh).castShadow=true;(o as THREE.Mesh).receiveShadow=true;}});petGroup.add(dog);petMixer=new THREE.AnimationMixer(dog);if(g.animations[0]){const idle=THREE.AnimationUtils.subclip(g.animations[0],'idle',0,30,24);const walk=THREE.AnimationUtils.subclip(g.animations[0],'walk',90,120,24);petIdle=petMixer.clipAction(idle);petWalk=petMixer.clipAction(walk);petIdle.play();}petReady=true;},undefined,()=>console.warn('Optional CC0 dog model failed to load; world remains playable.'));
 const bots:Bot[]=[];const botColors=[0xff795f,0xffc857,0x9c83ff,0x70a7ff,0xe77ea9,0x91c46b,0xd19b6d,0x69b7c7,0xd98d54,0x65a9a0,0xb17ca1,0xc3b36d];
 const jobs=[{role:'shopkeeper',route:[[-13,-15],[-13,-15],[-13,-15]]},{role:'courier',route:[[5,-8],[35,-8],[35,28],[5,28]]},{role:'gardener',route:[[-36,35],[-52,35],[-52,55],[-36,55]]},{role:'builder',route:[[40,-40],[58,-40],[58,-20],[40,-20]]},{role:'guard',route:[[0,-28],[0,28],[28,28],[28,-28]]},{role:'citizen',route:[[-30,-20],[-30,22],[25,22],[25,-20]]},{role:'vendor',route:[[14,14],[14,14],[14,14]]},{role:'cleaner',route:[[-20,0],[-20,22],[20,22],[20,0]]},{role:'student',route:[[48,48],[62,48],[62,62],[48,62]]},{role:'mechanic',route:[[70,5],[88,5],[88,22],[70,22]]},{role:'dog walker',route:[[-75,-20],[-60,-20],[-60,-38],[-75,-38]]},{role:'resident',route:[[80,-55],[98,-55],[98,-35],[80,-35]]}];
 for(let i=0;i<jobs.length;i++){const a=makeAvatar(botColors[i]);const job=jobs[i];const route=job.route.map(p=>new THREE.Vector3(p[0],0,p[1]));a.root.userData.limbs=[a.leftArm,a.rightArm,a.leftLeg,a.rightLeg];a.root.position.copy(route[0]);scene.add(a.root);bots.push({root:a.root,hp:100,alive:true,respawn:0,phase:i*1.7,state:'wander',target:route[0].clone(),mood:i%4,speed:job.role==='courier'?2.8:1.1+(i%3)*.35,color:botColors[i],role:job.role,route,waypoint:1,work:0});}
@@ -129,6 +132,7 @@ function update(dt:number){
  }
  animateAvatar(player,walkPhase,moving);
  for(const r of remotes.values())r.avatar.root.position.lerp(r.target,Math.min(1,dt*12));
+ if(petReady){petPhase+=dt;const dog=petGroup.children[0];if(dog){const d=petTarget.clone().sub(dog.position);if(d.length()<1){petTarget.set(Math.sin(petPhase*.23)*38,0,Math.cos(petPhase*.19)*38);}else{d.normalize();dog.position.addScaledVector(d,dt*1.8);dog.rotation.y=Math.atan2(d.x,d.z);if(petWalk&&!petWalk.isRunning()){petIdle?.stop();petWalk.reset().play();}}if(petMixer)petMixer.update(dt);}}
  const target=new THREE.Vector3(playerPos.x,playerPos.y+1.45,playerPos.z),offset=new THREE.Vector3(Math.sin(yaw)*5.8,2.9+pitch*2,Math.cos(yaw)*5.8);camera.position.lerp(target.clone().add(offset),1-Math.exp(-dt*9));camera.lookAt(target);
  if(network?.readyState===WebSocket.OPEN&&performance.now()-lastNetSend>65){network.send(JSON.stringify({type:'move',x:playerPos.x,y:playerPos.y,z:playerPos.z,yaw}));lastNetSend=performance.now();}
  playersText.textContent=String(1+remotes.size+bots.filter(b=>b.alive).length);
