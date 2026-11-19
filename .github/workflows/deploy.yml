@@ -1,4 +1,4 @@
-name: Build and deploy VEXORA
+name: Deploy QuickPlay Lab to GitHub Pages
 on:
   push:
     branches: [main]
@@ -18,16 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm install
-      - run: npm run build
+      - name: Assemble static site
+        run: |
+          mkdir -p dist
+          cp index.html styles.css app.js analytics-config.js robots.txt sitemap.xml dist/
+          cp -R reaction-time-test typing-speed-test memory-match word-scramble number-guess privacy dist/
       - uses: actions/upload-pages-artifact@v3
         with:
-          name: vexora-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: dist
       - id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          artifact_name: vexora-pages-${{ github.run_id }}-${{ github.run_attempt }}

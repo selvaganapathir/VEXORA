@@ -1,40 +1,25 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta name="theme-color" content="#080d19"/><meta name="description" content="VEXORA — Play. Create. Explore."/><title>VEXORA — Play. Create. Conquer.</title>
-</head>
-<body><div id="app">
-<div id="hud">
-<header class="topbar"><div class="brand"><span class="brand-mark">V</span><span>VEXORA</span></div><div class="top-actions"><span id="net-status" class="status">PRACTICE</span><button id="settings-btn" class="icon-btn" aria-label="Settings">⚙</button><button id="sound-btn" class="icon-btn" aria-label="Sound">♫</button></div></header>
-<section id="start-screen" class="overlay"><div class="hero-card"><p class="eyebrow">YOUR WORLD. YOUR ADVENTURE.</p><h1>PLAY. CREATE.<br><em>CONQUER.</em></h1><p class="intro">Explore a living 3D town, meet characters, train, gear up and make your own story.</p><label class="name-label" for="player-name">PLAYER NAME</label><input id="player-name" maxlength="16" value="Player" autocomplete="nickname"/><button id="play-btn" class="primary-btn">ENTER VEXORA <span>→</span></button><p class="microcopy">Browser preview · No account required · Mobile ready</p></div><div class="feature-strip"><span>◈ 3D WORLD</span><span>◉ LIVING NPCs</span><span>⌁ MOBILE CONTROLS</span></div></section>
-<section id="game-ui" class="hidden">
-<div class="stats"><div class="stat"><small>HEALTH</small><div class="health-track"><div id="health-fill"></div></div><b id="health-text">100</b></div><div class="stat compact"><small>ELIMINATIONS</small><b id="kills">0</b></div><div class="stat compact"><small>POPULATION</small><b id="players">9</b></div></div>
-<div id="crosshair" class="crosshair">+</div><div id="toast" class="toast"></div><button id="leave-btn" class="leave-btn">EXIT</button>
-<div class="quick-actions"><button id="inventory-btn" class="quick-btn">🎒 INVENTORY</button><button id="interact-btn" class="quick-btn">✦ INTERACT [E]</button></div>
-<div class="help"><b>WASD</b> move · <b>SHIFT</b> sprint · <b>CTRL</b> crouch · <b>SPACE</b> jump · <b>CLICK</b> use · <b>E</b> interact · <b>I</b> inventory</div>
-<div id="mobile-controls"><div id="joystick"><div id="stick"></div></div><button id="jump-btn">↑</button><button id="interact-btn-mobile" class="mobile-action">E</button><button id="fire-btn">●</button></div>
-</section>
-<section id="settings-panel" class="panel hidden"><div class="panel-head"><div><p class="eyebrow">PERSONALIZE YOUR EXPERIENCE</p><h2>SETTINGS</h2></div><button id="close-settings" class="close-btn">×</button></div>
-<label>GRAPHICS QUALITY<select id="quality-select"><option value="low" selected>Low · Battery saver</option><option value="medium">Medium · Balanced</option><option value="high">High · Best visuals</option></select></label>
-<div class="range-row"><label for="fov-range">CAMERA FIELD OF VIEW <b id="fov-value">68</b></label><input id="fov-range" type="range" min="55" max="95" value="68"/></div>
-<div class="range-row"><label for="sensitivity-range">LOOK SENSITIVITY <b id="sensitivity-value">100%</b></label><input id="sensitivity-range" type="range" min="40" max="200" value="100"/></div>
-<details class="settings-group" open><summary>CONTROLS & GAMEPLAY</summary>
-<label>CONTROL PRESET<select id="control-preset"><option value="standard">Standard · WASD</option><option value="left">Left-handed · IJKL</option></select></label>
-<label>CAMERA VIEW<select id="camera-mode-select"><option value="third">Third person</option><option value="first">First person</option></select></label>
-<label>SPRINT BEHAVIOUR<select id="sprint-mode-select"><option value="hold">Hold to sprint</option><option value="toggle">Toggle sprint</option></select></label>
-<label>CROUCH BEHAVIOUR<select id="crouch-mode-select"><option value="hold">Hold to crouch</option><option value="toggle">Toggle crouch</option></select></label>
-<label class="check-row"><input id="invert-look" type="checkbox"/> INVERT VERTICAL LOOK</label>
-<label class="check-row"><input id="camera-smoothing" type="checkbox" checked/> SMOOTH CAMERA FOLLOW</label>
-<label class="check-row"><input id="reduced-motion" type="checkbox"/> REDUCE CAMERA MOTION</label>
-</details>
-<details class="settings-group"><summary>CAMERA & DISPLAY</summary>
-<div class="range-row"><label for="camera-distance">THIRD-PERSON DISTANCE <b id="camera-distance-value">5.8</b></label><input id="camera-distance" type="range" min="3" max="12" step=".2" value="5.8"/></div>
-<div class="range-row"><label for="hud-scale">HUD SIZE <b id="hud-scale-value">100%</b></label><input id="hud-scale" type="range" min="80" max="120" value="100"/></div>
-<label class="check-row"><input id="show-crosshair" type="checkbox" checked/> SHOW CROSSHAIR</label>
-</details>
-<p class="settings-note">Inspired by the configurable camera, control presets and accessibility options found in major open-world games. Settings are saved on this device. Graphics performance depends on your device.</p></section>
-<section id="inventory-panel" class="panel inventory hidden"><div class="panel-head"><div><p class="eyebrow">YOUR LOADOUT</p><h2>INVENTORY</h2></div><button id="close-inventory" class="close-btn">×</button></div>
-<label>EQUIPPED ITEM<select id="equip-select"><option>Blaster</option><option>Energy Staff</option><option>Training Gloves</option></select></label>
-<div class="item-grid"><div class="item-card"><span>🔫</span><b>BLASTER</b><small>Ranged · 50 damage</small></div><div class="item-card"><span>⚡</span><b>ENERGY STAFF</b><small>Close range · 25 damage</small></div><div class="item-card"><span>🥊</span><b>TRAINING GLOVES</b><small>Unarmed practice</small></div><div class="item-card"><span>🎒</span><b>TRAVEL PACK</b><small>Cosmetic accessory</small></div></div></section>
-</div><canvas id="game-canvas"></canvas></div>
-<script type="module" src="/src/main.ts"></script></body></html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131c"><meta name="description" content="Play free browser games and quick online tests. Try the reaction time test, typing speed test, memory game, word scramble and number challenge. No download or account needed.">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://selvaganapathir.github.io/VEXORA/">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./styles.css">
+<title>QuickPlay Lab — Free Online Mini Games & Quick Tests</title>
+</head><body data-page="home">
+<header class="site-header"><a class="logo" href="./"><span class="logo-mark">Q</span> QUICKPLAY <i>LAB</i></a><nav><a href="#games">Games</a><a href="#about">About</a><a href="#portfolio">Portfolio</a></nav><a class="header-cta" href="#games">Play now ↗</a></header>
+<main>
+<section class="hero"><div class="hero-copy"><div class="kicker"><span class="live-dot"></span> INSTANT FUN. ZERO DOWNLOADS.</div><h1>A LITTLE PLAY.<br><em>A LOT OF BRAIN.</em></h1><p>Quick games and clever tests to challenge your reflexes, sharpen your focus and make a spare minute more fun.</p><div class="hero-actions"><a class="button primary" href="#games">Explore games <span>→</span></a><span class="tiny-note">Free · Mobile friendly · No sign-up</span></div><div class="hero-metrics"><div><b>05</b><span>MINI GAMES</span></div><div><b>0</b><span>DOWNLOADS</span></div><div><b>∞</b><span>RETRIES</span></div></div></div><div class="hero-art" aria-label="Abstract colorful game shapes"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orb orb-main">PLAY</div><div class="orb orb-small">GO!</div><div class="spark spark-a">✳</div><div class="spark spark-b">✦</div><div class="art-caption">YOUR NEXT<br>HIGH SCORE<br>STARTS HERE.</div></div></section>
+<section id="games" class="section"><div class="section-head"><div><div class="kicker">PICK YOUR CHALLENGE</div><h2>What are we playing?</h2></div><span class="section-aside">Five ways to beat your best.</span></div>
+<div class="game-grid">
+<a class="game-card card-purple" href="./reaction-time-test/"><div class="card-top"><span class="game-icon">⚡</span><span class="pill">REFLEX</span></div><div><h3>Reaction Time Test</h3><p>How fast are your reflexes? Wait for green, then tap as fast as you can.</p></div><div class="card-bottom"><span>~30 seconds</span><b>PLAY NOW ↗</b></div></a>
+<a class="game-card card-orange" href="./typing-speed-test/"><div class="card-top"><span class="game-icon">⌨</span><span class="pill">SKILL</span></div><div><h3>Typing Speed Test</h3><p>Test your typing speed, measure WPM and see how accurate you are.</p></div><div class="card-bottom"><span>1 minute</span><b>PLAY NOW ↗</b></div></a>
+<a class="game-card card-blue" href="./memory-match/"><div class="card-top"><span class="game-icon">▦</span><span class="pill">MEMORY</span></div><div><h3>Memory Match</h3><p>Flip the cards, find every pair and train your short-term memory.</p></div><div class="card-bottom"><span>2–3 minutes</span><b>PLAY NOW ↗</b></div></a>
+<a class="game-card card-green" href="./word-scramble/"><div class="card-top"><span class="game-icon">✳</span><span class="pill">WORD PLAY</span></div><div><h3>Word Scramble</h3><p>Unscramble mixed-up letters before the timer runs out.</p></div><div class="card-bottom"><span>1 minute</span><b>PLAY NOW ↗</b></div></a>
+<a class="game-card card-pink" href="./number-guess/"><div class="card-top"><span class="game-icon">№</span><span class="pill">LOGIC</span></div><div><h3>Number Guess</h3><p>Can you find the secret number? Use clues and beat your record.</p></div><div class="card-bottom"><span>~1 minute</span><b>PLAY NOW ↗</b></div></a>
+<div class="coming-card"><span>✦</span><h3>Your next challenge</h3><p>More tiny games are on the way. Got an idea? Tell us.</p><a href="mailto:hello@quickplaylab.example?subject=Game%20idea">Suggest a game ↗</a></div>
+</div></section>
+<section class="daily"><div><div class="kicker">THE DAILY BRAIN BREAK</div><h2>One minute.<br>One new personal best.</h2><p>Pick a challenge, play a round and share your score with friends. Your best score stays on this device.</p></div><a class="button light" href="./reaction-time-test/">Take today's challenge →</a></section>
+<section id="about" class="content-section"><div class="kicker">WHY QUICKPLAY LAB?</div><h2>Fun should be one tap away.</h2><div class="content-columns"><p>QuickPlay Lab is a collection of free, lightweight browser games and mini tests. No app install, no account and no complicated setup. Open a challenge and start playing.</p><p>Built to work on phones, tablets and desktops. The games run directly in your browser and keep your personal bests on your device.</p></div></section>
+<section id="portfolio" class="portfolio"><div><div class="kicker">THE BUILD</div><h2>A small project with a big focus on speed.</h2><p>Designed and developed as a mobile-first web project with semantic HTML, lean CSS and vanilla JavaScript. Search-friendly pages, accessible controls and measurable engagement are part of the build.</p></div><div class="tech-tags"><span>VANILLA JS</span><span>LIGHTWEIGHT</span><span>SEO READY</span><span>GITHUB PAGES</span><span>GA4 READY</span></div></section>
+</main><footer><a class="logo" href="./"><span class="logo-mark">Q</span> QUICKPLAY <i>LAB</i></a><span>Made for curious minds. © <span id="year"></span> QuickPlay Lab.</span><a href="./privacy/">Privacy</a></footer>
+<script src="./analytics-config.js"></script><script src="./app.js" defer></script></body></html>
