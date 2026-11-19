@@ -83,7 +83,7 @@ $('quality-select').addEventListener('change',e=>setQuality((e.target as HTMLSel
 $('fov-range').addEventListener('input',e=>{camera.fov=Number((e.target as HTMLInputElement).value);camera.updateProjectionMatrix();$('fov-value').textContent=String(camera.fov);});
 $('sensitivity-range').addEventListener('input',e=>{sensitivity=Number((e.target as HTMLInputElement).value)/100;$('sensitivity-value').textContent=(sensitivity*100).toFixed(0)+'%';});
 $('equip-select').addEventListener('change',e=>{equipped=(e.target as HTMLSelectElement).value;showToast(equipped+' equipped');});
-$('interact-btn').addEventListener('pointerdown',e=>{e.preventDefault();interact();});
+$('interact-btn').addEventListener('pointerdown',e=>{e.preventDefault();interact();});$('interact-btn-mobile').addEventListener('pointerdown',e=>{e.preventDefault();interact();});
 function toggleInventory(){showInventory=!showInventory;$('inventory-panel').classList.toggle('hidden',!showInventory);}
 function interact(){if(!playing)return;let nearest:Bot|null=null,dist=4;for(const b of bots){if(!b.alive)continue;const d=b.root.position.distanceTo(playerPos);if(d<dist){nearest=b;dist=d;}}showToast(nearest?'NPC: '+['Hello!','Nice weather today.','Want to train?','Stay alert!'][Math.floor(Math.random()*4)]:'No one nearby. Explore the town!');}
 canvas.addEventListener('touchstart',e=>{if(!playing)return;const t=e.changedTouches[0];if(t.clientX>innerWidth*.42){touchLook=true;lastTouchX=t.clientX;lastTouchY=t.clientY;}},{passive:true});
