@@ -18,7 +18,21 @@
 <label>GRAPHICS QUALITY<select id="quality-select"><option value="low">Low · Battery saver</option><option value="medium">Medium · Balanced</option><option value="high" selected>High · Best visuals</option></select></label>
 <div class="range-row"><label for="fov-range">CAMERA FIELD OF VIEW <b id="fov-value">68</b></label><input id="fov-range" type="range" min="55" max="95" value="68"/></div>
 <div class="range-row"><label for="sensitivity-range">LOOK SENSITIVITY <b id="sensitivity-value">100%</b></label><input id="sensitivity-range" type="range" min="40" max="200" value="100"/></div>
-<p class="settings-note">Low graphics reduces render resolution. High enables real-time shadows. Performance depends on your device.</p></section>
+<details class="settings-group" open><summary>CONTROLS & GAMEPLAY</summary>
+<label>CONTROL PRESET<select id="control-preset"><option value="standard">Standard · WASD</option><option value="left">Left-handed · IJKL</option></select></label>
+<label>CAMERA VIEW<select id="camera-mode-select"><option value="third">Third person</option><option value="first">First person</option></select></label>
+<label>SPRINT BEHAVIOUR<select id="sprint-mode-select"><option value="hold">Hold to sprint</option><option value="toggle">Toggle sprint</option></select></label>
+<label>CROUCH BEHAVIOUR<select id="crouch-mode-select"><option value="hold">Hold to crouch</option><option value="toggle">Toggle crouch</option></select></label>
+<label class="check-row"><input id="invert-look" type="checkbox"/> INVERT VERTICAL LOOK</label>
+<label class="check-row"><input id="camera-smoothing" type="checkbox" checked/> SMOOTH CAMERA FOLLOW</label>
+<label class="check-row"><input id="reduced-motion" type="checkbox"/> REDUCE CAMERA MOTION</label>
+</details>
+<details class="settings-group"><summary>CAMERA & DISPLAY</summary>
+<div class="range-row"><label for="camera-distance">THIRD-PERSON DISTANCE <b id="camera-distance-value">5.8</b></label><input id="camera-distance" type="range" min="3" max="12" step=".2" value="5.8"/></div>
+<div class="range-row"><label for="hud-scale">HUD SIZE <b id="hud-scale-value">100%</b></label><input id="hud-scale" type="range" min="80" max="120" value="100"/></div>
+<label class="check-row"><input id="show-crosshair" type="checkbox" checked/> SHOW CROSSHAIR</label>
+</details>
+<p class="settings-note">Inspired by the configurable camera, control presets and accessibility options found in major open-world games. Settings are saved on this device. Graphics performance depends on your device.</p></section>
 <section id="inventory-panel" class="panel inventory hidden"><div class="panel-head"><div><p class="eyebrow">YOUR LOADOUT</p><h2>INVENTORY</h2></div><button id="close-inventory" class="close-btn">×</button></div>
 <label>EQUIPPED ITEM<select id="equip-select"><option>Blaster</option><option>Energy Staff</option><option>Training Gloves</option></select></label>
 <div class="item-grid"><div class="item-card"><span>🔫</span><b>BLASTER</b><small>Ranged · 50 damage</small></div><div class="item-card"><span>⚡</span><b>ENERGY STAFF</b><small>Close range · 25 damage</small></div><div class="item-card"><span>🥊</span><b>TRAINING GLOVES</b><small>Unarmed practice</small></div><div class="item-card"><span>🎒</span><b>TRAVEL PACK</b><small>Cosmetic accessory</small></div></div></section>
