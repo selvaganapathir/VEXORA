@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#080d19" />
+    <meta name="description" content="VEXORA — Play. Create. Conquer. A fast, social 3D browser arena." />
+    <title>VEXORA — Play. Create. Conquer.</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="hud">
+        <header class="topbar"><div class="brand"><span class="brand-mark">V</span><span>VEXORA</span></div><div class="top-actions"><span id="net-status" class="status">OFFLINE</span><button id="sound-btn" class="icon-btn" aria-label="Toggle sound">♫</button></div></header>
+        <section id="start-screen" class="overlay">
+          <div class="hero-card"><p class="eyebrow">A NEW WORLD IS WAITING</p><h1>PLAY. CREATE.<br><em>CONQUER.</em></h1><p class="intro">Drop into the arena. Explore, train and challenge other players.</p><label class="name-label" for="player-name">YOUR PLAYER NAME</label><input id="player-name" maxlength="16" value="Player" autocomplete="nickname" /><button id="play-btn" class="primary-btn">ENTER THE ARENA <span>→</span></button><p class="microcopy">Browser preview · No account required</p></div>
+          <div class="feature-strip"><span>◈ 3D WORLD</span><span>◉ LIVE ARENA</span><span>⌁ MOBILE READY</span></div>
+        </section>
+        <section id="game-ui" class="hidden">
+          <div class="stats"><div class="stat"><small>HEALTH</small><div class="health-track"><div id="health-fill"></div></div><b id="health-text">100</b></div><div class="stat compact"><small>ELIMINATIONS</small><b id="kills">0</b></div><div class="stat compact"><small>PLAYERS</small><b id="players">1</b></div></div>
+          <div class="crosshair">+</div><div id="toast" class="toast"></div>
+          <div class="help"><b>WASD</b> move <span>·</span> <b>SPACE</b> jump <span>·</span> <b>CLICK</b> fire <span>·</span> <b>ESC</b> pause</div>
+          <div id="mobile-controls"><div id="joystick"><div id="stick"></div></div><button id="jump-btn">↑</button><button id="fire-btn">●</button></div>
+          <button id="leave-btn" class="leave-btn">LEAVE</button>
+        </section>
+      </div>
+      <canvas id="game-canvas"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
