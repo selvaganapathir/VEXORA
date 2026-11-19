@@ -35,22 +35,29 @@ function loadWorldModel(path:string,position:THREE.Vector3,targetHeight:number,r
  assetLoader.load(assetBase+path.split('/').map(encodeURIComponent).join('/'),g=>{modelCache.set(path,g.scene);place(g.scene);},undefined,e=>console.warn('Optional CC0 world model failed:',path,e));
 }
 
+function loadWorldTile(path:string,position:THREE.Vector3,rotation=0,scale=1){
+ const cached=modelCache.get(path);
+ const place=(source:THREE.Group)=>{const clone=source.clone(true);clone.scale.setScalar(scale);const bounds=new THREE.Box3().setFromObject(clone);clone.position.set(position.x-(bounds.min.x+bounds.max.x)/2,position.y-bounds.min.y,position.z-(bounds.min.z+bounds.max.z)/2);clone.rotation.y=rotation;clone.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}});world.add(clone);};
+ if(cached){place(cached);return;}
+ assetLoader.load(assetBase+path.split('/').map(encodeURIComponent).join('/'),g=>{modelCache.set(path,g.scene);place(g.scene);},undefined,e=>console.warn('Optional CC0 road tile failed:',path,e));
+}
 function box(parent:THREE.Object3D,w:number,h:number,d:number,c:number,x:number,y:number,z:number){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);parent.add(m);return m;}
 function buildWorld(){
   // Expanded district: central plaza, roads, residential blocks, shops and park.
-  const roadMat=new THREE.MeshStandardMaterial({map:proceduralTexture('#343e48','#9aa0a5',5),roughness:.95});
-  const road=new THREE.Mesh(new THREE.PlaneGeometry(420,12),roadMat);road.rotation.x=-Math.PI/2;road.position.set(0,.005,0);world.add(road);
-  const cross=new THREE.Mesh(new THREE.PlaneGeometry(12,420),roadMat);cross.rotation.x=-Math.PI/2;cross.position.set(0,.006,0);world.add(cross);
-  for(let i=-18;i<=18;i+=6){box(world,2.8,.025,.16,0xe4d6a6,i,.025,0);box(world,.16,.025,2.8,0xe4d6a6,0,.026,i);}
-  const sidewalk=mat(0xb7b3a7);for(const side of [-1,1]){const walk=new THREE.Mesh(new THREE.PlaneGeometry(420,3),sidewalk);walk.rotation.x=-Math.PI/2;walk.position.set(side*7.7,.015,0);world.add(walk);}
+  // Modular CC0 Kenney road kit tiles replace flat prototype road planes.
+  const roadStraight='props/kenney-city-kit-roads/Models/GLB format/road-straight.glb',roadCross='props/kenney-city-kit-roads/Models/GLB format/road-crossroad.glb',roadCrossing='props/kenney-city-kit-roads/Models/GLB format/road-crossing.glb';
+  for(let n=-17;n<=17;n++){const offset=n*12;if(n!==0){loadWorldTile(roadStraight,new THREE.Vector3(offset,0,0),Math.PI/2,1.2);loadWorldTile(roadStraight,new THREE.Vector3(0,0,offset),0,1.2);}}
+  loadWorldTile(roadCross,new THREE.Vector3(0,0,0),0,1.2);
+  for(const p of [-60,60]){loadWorldTile(roadCrossing,new THREE.Vector3(p,0,0),Math.PI/2,1.2);loadWorldTile(roadCrossing,new THREE.Vector3(0,0,p),0,1.2);}
   // Replace the old coloured box-building placeholders with licensed, textured GLB buildings.
   const buildingModels=['building-type-a.glb','building-type-b.glb','building-type-c.glb','building-type-d.glb','building-type-e.glb','building-type-f.glb','building-type-g.glb','building-type-h.glb','building-type-i.glb','building-type-j.glb','building-type-k.glb'];
   let buildingIndex=0;
   for(let z=-100;z<=100;z+=34){for(let x=-100;x<=100;x+=34){if(Math.abs(x)<24&&Math.abs(z)<24)continue;const file=buildingModels[buildingIndex++%buildingModels.length];loadWorldModel('buildings/kenney-city-kit-suburban/Models/GLB format/'+file,new THREE.Vector3(x,0,z),13+(Math.abs(x*z)%9),((buildingIndex%4)*Math.PI/2));}}
   // town square and market lane
   box(world,18,.22,12,0x9b9b91,0,0,-15); box(world,7,.08,52,0xb5a98e,0,.02,0);
-  for(let i=0;i<5;i++){const x=-24+i*12; box(world,7,4+(i%3),7,[0x587f91,0x8b6b83,0x9b805e,0x557f70,0x64769b][i],x,2,-28); box(world,7.2,.35,7.2,0x343f50,x,4.1+(i%3),-28);}
-  for(let i=0;i<4;i++){const x=-18+i*12; box(world,5,2.4,2,0x526c87,x,1.2,14); box(world,5,.18,2.1,0xe0b66b,x,2.5,14);}
+  // Real CC0 shopfront models replace the coloured box-building stand-ins.
+  for(let i=0;i<4;i++){const x=-30+i*20;const file=buildingModels[(i+3)%buildingModels.length];loadWorldModel('buildings/kenney-city-kit-suburban/Models/GLB format/'+file,new THREE.Vector3(x,0,-30),10+(i%2)*2,(i%2)*Math.PI);}
+  for(let i=0;i<3;i++){const x=-18+i*18;loadWorldModel('props/kenney-city-kit-roads/Models/GLB format/construction-cone.glb',new THREE.Vector3(x,0,14),.75,(i%2)*Math.PI);}
   // benches, crates, lamps, flower beds
   for(let i=0;i<6;i++){const x=-20+i*8; box(world,2.4,.25,.55,0x79563c,x,.65,7); box(world,.18,.6,.18,0x3c4850,x-1,.3,7);box(world,.18,.6,.18,0x3c4850,x+1,.3,7);}
   const treeFiles=['Tree.glb','Pine.glb','Twisted Tree.glb','Dead Tree.glb'];
@@ -100,7 +107,9 @@ function attachCharacterModel(root:THREE.Group,gender:CharacterGender,source:THR
  const scale=1.82/Math.max(size.y,.001);
  model.scale.setScalar(scale);
  model.position.y=-bounds.min.y*scale;
- model.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}});
+ const characterBones:Record<string,{bone:THREE.Object3D;baseX:number;baseZ:number}>={};
+ model.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}const n=o.name.toLowerCase();if(['upperarm_l','upperarm_r','lowerarm_l','lowerarm_r','thigh_l','thigh_r','calf_l','calf_r','spine_02','head','neck_01'].includes(n))characterBones[n]={bone:o,baseX:o.rotation.x,baseZ:o.rotation.z};});
+ root.userData.characterBones=characterBones;
  root.clear();
  root.add(model);
  root.userData.hasRealCharacterModel=true;
@@ -168,14 +177,21 @@ canvas.addEventListener('touchstart',e=>{if(!playing)return;const t=e.changedTou
 canvas.addEventListener('touchmove',e=>{if(!touchLook)return;const t=e.changedTouches[0];look(t.clientX-lastTouchX,t.clientY-lastTouchY);lastTouchX=t.clientX;lastTouchY=t.clientY;},{passive:true});canvas.addEventListener('touchend',()=>touchLook=false);
 const joy=$('joystick'),stick=$('stick');joy.addEventListener('pointerdown',e=>{joy.setPointerCapture(e.pointerId);updateJoy(e);});joy.addEventListener('pointermove',e=>{if(e.buttons)updateJoy(e);});joy.addEventListener('pointerup',()=>{joystick={x:0,y:0};stick.style.transform='translate(0,0)';});
 function updateJoy(e:PointerEvent){const r=joy.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,len=Math.max(1,Math.hypot(dx,dy)),s=Math.min(1,40/len);joystick={x:dx/len*s,y:dy/len*s};stick.style.transform=`translate(${joystick.x*40}px,${joystick.y*40}px)`;}
-function animateAvatar(a:Avatar,phase:number,moving:boolean,working=false){const swing=moving?Math.sin(phase)*.62:Math.sin(phase*1.4)*.035;a.leftArm.rotation.x=working?-.9:swing*.75;a.rightArm.rotation.x=working?-.65:-swing*.75;a.leftLeg.rotation.x=-swing;a.rightLeg.rotation.x=swing;}
+function animateCharacter(root:THREE.Group,phase:number,moving:boolean,options:{sprinting?:boolean;crouching?:boolean;airborne?:boolean;working?:boolean}={}){
+ const bones=root.userData.characterBones as Record<string,{bone:THREE.Object3D;baseX:number;baseZ:number}>|undefined;if(!bones)return;
+ const stride=moving?Math.sin(phase)*(options.sprinting?.92:.62):0;const idle=Math.sin(phase*.8)*.025;const work=!!options.working&&!moving;
+ const set=(name:string,x:number,z=0)=>{const b=bones[name];if(b){b.bone.rotation.x=b.baseX+x;b.bone.rotation.z=b.baseZ+z;}};
+ set('thigh_l',-stride+(options.crouching?-.48:0));set('thigh_r',stride+(options.crouching?-.48:0));set('calf_l',Math.max(0,stride)*.65);set('calf_r',Math.max(0,-stride)*.65);
+ set('upperarm_l',work?-.78:-stride*.72,work?.12:0);set('upperarm_r',work?-.52:stride*.72,work?-.12:0);set('lowerarm_l',work?-.35:0);set('lowerarm_r',work?-.28:0);
+ set('spine_02',idle+(options.airborne?-.08:0));set('neck_01',Math.sin(phase*.45)*.018);set('head',Math.sin(phase*.55)*.018);
+}
 function update(dt:number){
  if(!playing)return;fireCooldown=Math.max(0,fireCooldown-dt);toastTimer-=dt;if(toastTimer<=0)toast.classList.remove('visible');
  const f=(keys.has(leftHanded?'KeyI':'KeyW')||keys.has('ArrowUp')?1:0)-(keys.has(leftHanded?'KeyK':'KeyS')||keys.has('ArrowDown')?1:0)-joystick.y,s=(keys.has(leftHanded?'KeyL':'KeyD')||keys.has('ArrowRight')?1:0)-(keys.has(leftHanded?'KeyJ':'KeyA')||keys.has('ArrowLeft')?1:0)+joystick.x;
  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw)),move=forward.multiplyScalar(f).addScaledVector(right,s);if(move.lengthSq()>1)move.normalize();
  const sprintHeld=keys.has('ShiftLeft')||keys.has('ShiftRight'),crouchHeld=keys.has('ControlLeft')||keys.has('ControlRight');const sprint=sprintMode==='toggle'?sprintLatched:sprintHeld,crouch=crouchMode==='toggle'?crouchLatched:crouchHeld;const speed=crouch?3.1:sprint?12:7.5;playerPos.addScaledVector(move,speed*dt);playerPos.x=THREE.MathUtils.clamp(playerPos.x,-195,195);playerPos.z=THREE.MathUtils.clamp(playerPos.z,-195,195);
  if(keys.has('Space')&&playerPos.y<.03)vy=7;vy-=18*dt;playerPos.y=Math.max(0,playerPos.y+vy*dt);if(!playerPos.y)vy=0;
- player.root.position.copy(playerPos);player.root.rotation.y=yaw;const moving=move.lengthSq()>.01;if(moving)walkPhase+=dt*(sprint?13:8);animateAvatar(player,walkPhase,moving);player.root.scale.y=crouch?.82:1;
+ player.root.position.copy(playerPos);player.root.rotation.y=yaw;const moving=move.lengthSq()>.01;if(moving)walkPhase+=dt*(sprint?13:8);animateCharacter(player.root,walkPhase,moving,{sprinting:sprint,crouching:crouch,airborne:playerPos.y>.08});
  for(const b of bots){
   if(!b.alive){b.respawn-=dt;if(b.respawn<=0){b.alive=true;b.hp=100;b.root.visible=true;b.root.position.copy(b.route[0]);b.waypoint=1;b.work=0;}continue;}
   b.phase+=dt;
@@ -189,12 +205,10 @@ function update(dt:number){
   else {b.root.rotation.y=Math.sin(b.phase*.45)*.35; }
   // small job-specific motions: sweeping, gardening, building, serving and shop idles
   const isWorking=!moving&&workRole;
-  const swing=moving?Math.sin(b.phase*7)*.55:0;
-  const limbs=(b.root.userData.limbs||[]) as THREE.Group[];
-  if(limbs.length>=4){(limbs[0] as THREE.Group).rotation.x=isWorking?Math.sin(b.phase*3)*.65:swing*.7;(limbs[1] as THREE.Group).rotation.x=isWorking?-.5:-swing*.7;(limbs[2] as THREE.Group).rotation.x=-swing;(limbs[3] as THREE.Group).rotation.x=swing;}
-  b.root.position.y=moving?Math.abs(Math.sin(b.phase*8))*.055:Math.sin(b.phase*2)*.012;
+  animateCharacter(b.root,b.phase*7,moving,{working:isWorking});
+  b.root.position.y=moving?Math.abs(Math.sin(b.phase*8))*.035:Math.sin(b.phase*2)*.008;
  }
- animateAvatar(player,walkPhase,moving);
+ 
  for(const r of remotes.values())r.avatar.root.position.lerp(r.target,Math.min(1,dt*12));
  if(petReady){petPhase+=dt;const dog=petGroup.children[0];if(dog){const d=petTarget.clone().sub(dog.position);if(d.length()<1){petTarget.set(Math.sin(petPhase*.23)*38,0,Math.cos(petPhase*.19)*38);}else{d.normalize();dog.position.addScaledVector(d,dt*1.8);dog.rotation.y=Math.atan2(d.x,d.z);if(petWalk&&!petWalk.isRunning()){petIdle?.stop();petWalk.reset().play();}}if(petMixer)petMixer.update(dt);}}
  const target=new THREE.Vector3(playerPos.x,playerPos.y+(cameraMode==='first'?1.62:1.45),playerPos.z);const offset=cameraMode==='first'?new THREE.Vector3(0,.05,0):new THREE.Vector3(Math.sin(yaw)*cameraDistance,2.9+pitch*2,Math.cos(yaw)*cameraDistance);const desired=target.clone().add(offset);if(smoothCamera&&!reducedMotion)camera.position.lerp(desired,1-Math.exp(-dt*9));else camera.position.copy(desired);camera.lookAt(target);$('crosshair').classList.toggle('hidden',!showCrosshair||cameraMode==='third');
