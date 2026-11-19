@@ -78,7 +78,7 @@ function buildWorld(){
   loadWorldTile(roadCross,new THREE.Vector3(0,0,0),0,1.2);
   for(const p of [-60,60]){loadWorldTile(roadCrossing,new THREE.Vector3(p,0,0),Math.PI/2,1.2);loadWorldTile(roadCrossing,new THREE.Vector3(0,0,p),0,1.2);}
   // Replace the old coloured box-building placeholders with licensed, textured GLB buildings.
-  const buildingModels=['building-type-a.glb','building-type-b.glb','building-type-c.glb','building-type-d.glb','building-type-e.glb','building-type-f.glb','building-type-g.glb','building-type-h.glb','building-type-i.glb','building-type-j.glb','building-type-k.glb'];
+  const buildingModels=isMobileDevice?['building-type-a.glb','building-type-c.glb','building-type-f.glb','building-type-h.glb']:['building-type-a.glb','building-type-b.glb','building-type-c.glb','building-type-d.glb','building-type-e.glb','building-type-f.glb','building-type-g.glb','building-type-h.glb','building-type-i.glb','building-type-j.glb','building-type-k.glb'];
   let buildingIndex=0;
   for(let z=-100;z<=100;z+=50){for(let x=-100;x<=100;x+=50){if(Math.abs(x)<24&&Math.abs(z)<24)continue;if(isMobileDevice&&(Math.abs(x)>50||Math.abs(z)>50))continue;const file=buildingModels[buildingIndex++%buildingModels.length];loadWorldModel('buildings/kenney-city-kit-suburban/Models/GLB format/'+file,new THREE.Vector3(x,0,z),13+(Math.abs(x*z)%9),((buildingIndex%4)*Math.PI/2));}}
   // town square and market lane
@@ -88,18 +88,17 @@ function buildWorld(){
   for(let i=0;i<3;i++){const x=-18+i*18;loadWorldModel('props/kenney-city-kit-roads/Models/GLB format/construction-cone.glb',new THREE.Vector3(x,0,14),.75,(i%2)*Math.PI);}
   // benches, crates, lamps, flower beds
   for(let i=0;i<6;i++){const x=-20+i*8; box(world,2.4,.25,.55,0x79563c,x,.65,7); box(world,.18,.6,.18,0x3c4850,x-1,.3,7);box(world,.18,.6,.18,0x3c4850,x+1,.3,7);}
-  const treeFiles=['Tree.glb','Pine.glb','Twisted Tree.glb','Dead Tree.glb'];
+  const treeFiles=isMobileDevice?['Tree.glb','Pine.glb']:['Tree.glb','Pine.glb','Twisted Tree.glb','Dead Tree.glb'];
   for(let i=0;i<(isMobileDevice?10:18);i++){const radius=44+(i%4)*18,x=Math.sin(i*2.2)*radius,z=Math.cos(i*2.2)*radius;const tree=treeFiles[i%treeFiles.length];loadWorldModel('environment/vegetation/polypizza-stylized-nature-gltf/'+tree,new THREE.Vector3(x,0,z),i%4===1?9:6.5,(i%7)*.72);}
   // Street-light props are real CC0 GLB models rather than cylinders and spheres.
   for(let i=0;i<(isMobileDevice?6:10);i++){const x=-78+i*16;loadWorldModel('props/kenney-city-kit-roads/Models/GLB format/light-square.glb',new THREE.Vector3(x,0,-8),5.2,Math.PI);}
   // Medieval old-town quarter built from modular Quaternius CC0 village pieces.
   buildMedievalHouse(138,126);
-  buildMedievalHouse(151,126);
-  buildMedievalHouse(144,140);
-  for(let i=0;i<9;i++)loadMedievalPiece('Floor_UnevenBrick.gltf',new THREE.Vector3(140+i*2,0,117));
+  if(!isMobileDevice){buildMedievalHouse(151,126);buildMedievalHouse(144,140);}
+  for(let i=0;i<(isMobileDevice?4:9);i++)loadMedievalPiece('Floor_UnevenBrick.gltf',new THREE.Vector3(140+i*2,0,117));
   loadMedievalPiece('Prop_Wagon.gltf',new THREE.Vector3(157,0,137),Math.PI/2);
   loadMedievalPiece('Prop_Crate.gltf',new THREE.Vector3(154,0,137));
-  for(let i=0;i<8;i++)loadMedievalPiece('Prop_WoodenFence_Single.gltf',new THREE.Vector3(132+i*2,0,144),Math.PI/2);
+  for(let i=0;i<(isMobileDevice?3:8);i++)loadMedievalPiece('Prop_WoodenFence_Single.gltf',new THREE.Vector3(132+i*2,0,144),Math.PI/2);
 }
 buildWorld();
 
@@ -130,7 +129,7 @@ const petGroup=new THREE.Group();scene.add(petGroup);let petMixer:THREE.Animatio
 const petLoader=new GLTFLoader();if(!isMobileDevice)petLoader.load('https://gobkit.com/freebies/animal/Corgi.glb',g=>{const dog=g.scene;const bounds=new THREE.Box3().setFromObject(dog);const size=bounds.getSize(new THREE.Vector3());dog.scale.setScalar(1.15/Math.max(size.y,.001));dog.position.y=0;dog.rotation.y=Math.PI;dog.traverse(o=>{if((o as THREE.Mesh).isMesh){(o as THREE.Mesh).castShadow=true;(o as THREE.Mesh).receiveShadow=true;}});petGroup.add(dog);petMixer=new THREE.AnimationMixer(dog);if(g.animations[0]){const idle=THREE.AnimationUtils.subclip(g.animations[0],'idle',0,30,24);const walk=THREE.AnimationUtils.subclip(g.animations[0],'walk',90,120,24);petIdle=petMixer.clipAction(idle);petWalk=petMixer.clipAction(walk);petIdle.play();}petReady=true;},undefined,()=>console.warn('Optional CC0 dog model failed to load; world remains playable.'));
 const bots:Bot[]=[];const botColors=[0xff795f,0xffc857,0x9c83ff,0x70a7ff,0xe77ea9,0x91c46b,0xd19b6d,0x69b7c7,0xd98d54,0x65a9a0,0xb17ca1,0xc3b36d];
 const jobs=[{role:'shopkeeper',route:[[-13,-15],[-13,-15],[-13,-15]]},{role:'courier',route:[[5,-8],[35,-8],[35,28],[5,28]]},{role:'gardener',route:[[-36,35],[-52,35],[-52,55],[-36,55]]},{role:'builder',route:[[40,-40],[58,-40],[58,-20],[40,-20]]},{role:'guard',route:[[0,-28],[0,28],[28,28],[28,-28]]},{role:'citizen',route:[[-30,-20],[-30,22],[25,22],[25,-20]]},{role:'vendor',route:[[14,14],[14,14],[14,14]]},{role:'cleaner',route:[[-20,0],[-20,22],[20,22],[20,0]]},{role:'student',route:[[48,48],[62,48],[62,62],[48,62]]},{role:'mechanic',route:[[70,5],[88,5],[88,22],[70,22]]},{role:'dog walker',route:[[-75,-20],[-60,-20],[-60,-38],[-75,-38]]},{role:'resident',route:[[80,-55],[98,-55],[98,-35],[80,-35]]}];
-const activeJobs=isMobileDevice?jobs.slice(0,6):jobs;
+const activeJobs=isMobileDevice?jobs.slice(0,4):jobs;
 for(let i=0;i<activeJobs.length;i++){const a=makeAvatar(botColors[i]);const job=activeJobs[i];const route=job.route.map(p=>new THREE.Vector3(p[0],0,p[1]));a.root.userData.limbs=[a.leftArm,a.rightArm,a.leftLeg,a.rightLeg];a.root.position.copy(route[0]);scene.add(a.root);bots.push({root:a.root,hp:100,alive:true,respawn:0,phase:i*1.7,state:'wander',target:route[0].clone(),mood:i%4,speed:job.role==='courier'?2.8:1.1+(i%3)*.35,color:botColors[i],role:job.role,route,waypoint:1,work:0});}
 
 type CharacterGender='male'|'female';
