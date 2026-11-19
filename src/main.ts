@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
 import './style.css';
 
 type Bot = { root: THREE.Group; hp: number; alive: boolean; respawn: number; phase: number; state: 'wander'|'approach'|'retreat'|'guard'; target: THREE.Vector3; mood: number; speed: number; color: number; role:string; route:THREE.Vector3[]; waypoint:number; work:number; };
@@ -87,6 +88,37 @@ const petLoader=new GLTFLoader();petLoader.load('https://gobkit.com/freebies/ani
 const bots:Bot[]=[];const botColors=[0xff795f,0xffc857,0x9c83ff,0x70a7ff,0xe77ea9,0x91c46b,0xd19b6d,0x69b7c7,0xd98d54,0x65a9a0,0xb17ca1,0xc3b36d];
 const jobs=[{role:'shopkeeper',route:[[-13,-15],[-13,-15],[-13,-15]]},{role:'courier',route:[[5,-8],[35,-8],[35,28],[5,28]]},{role:'gardener',route:[[-36,35],[-52,35],[-52,55],[-36,55]]},{role:'builder',route:[[40,-40],[58,-40],[58,-20],[40,-20]]},{role:'guard',route:[[0,-28],[0,28],[28,28],[28,-28]]},{role:'citizen',route:[[-30,-20],[-30,22],[25,22],[25,-20]]},{role:'vendor',route:[[14,14],[14,14],[14,14]]},{role:'cleaner',route:[[-20,0],[-20,22],[20,22],[20,0]]},{role:'student',route:[[48,48],[62,48],[62,62],[48,62]]},{role:'mechanic',route:[[70,5],[88,5],[88,22],[70,22]]},{role:'dog walker',route:[[-75,-20],[-60,-20],[-60,-38],[-75,-38]]},{role:'resident',route:[[80,-55],[98,-55],[98,-35],[80,-35]]}];
 for(let i=0;i<jobs.length;i++){const a=makeAvatar(botColors[i]);const job=jobs[i];const route=job.route.map(p=>new THREE.Vector3(p[0],0,p[1]));a.root.userData.limbs=[a.leftArm,a.rightArm,a.leftLeg,a.rightLeg];a.root.position.copy(route[0]);scene.add(a.root);bots.push({root:a.root,hp:100,alive:true,respawn:0,phase:i*1.7,state:'wander',target:route[0].clone(),mood:i%4,speed:job.role==='courier'?2.8:1.1+(i%3)*.35,color:botColors[i],role:job.role,route,waypoint:1,work:0});}
+
+type CharacterGender='male'|'female';
+const characterSources=new Map<CharacterGender,THREE.Group>();
+const characterLoading=new Set<CharacterGender>();
+const characterTargets:{root:THREE.Group;gender:CharacterGender}[]=[];
+function attachCharacterModel(root:THREE.Group,gender:CharacterGender,source:THREE.Group){
+ const model=cloneSkeleton(source) as THREE.Group;
+ const bounds=new THREE.Box3().setFromObject(model);
+ const size=bounds.getSize(new THREE.Vector3());
+ const scale=1.82/Math.max(size.y,.001);
+ model.scale.setScalar(scale);
+ model.position.y=-bounds.min.y*scale;
+ model.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}});
+ root.clear();
+ root.add(model);
+ root.userData.hasRealCharacterModel=true;
+}
+function useCharacterModel(root:THREE.Group,gender:CharacterGender){
+ const cached=characterSources.get(gender);
+ if(cached){attachCharacterModel(root,gender,cached);return;}
+ characterTargets.push({root,gender});
+ if(characterLoading.has(gender))return;
+ characterLoading.add(gender);
+ assetLoader.load('/assets/characters/Superhero_'+(gender==='male'?'Male':'Female')+'_FullBody.gltf',g=>{
+  characterSources.set(gender,g.scene);
+  for(const target of characterTargets.filter(t=>t.gender===gender&&t.root.parent))attachCharacterModel(target.root,gender,g.scene);
+ },undefined,error=>console.warn('Character model failed to load:',gender,error));
+}
+useCharacterModel(player.root,'male');
+bots.forEach((bot,index)=>useCharacterModel(bot.root,index%3===1?'female':'male'));
+
 const remotes=new Map<string,{avatar:Avatar;target:THREE.Vector3;name:string}>();
 const keys=new Set<string>(),playerPos=new THREE.Vector3(0,0,5),raycaster=new THREE.Raycaster(),clock=new THREE.Clock();
 let yaw=0,pitch=-.12,vy=0,health=100,kills=0,playing=false,pointerLocked=false,fireCooldown=0,network:WebSocket|null=null,ownId='',joystick={x:0,y:0},touchLook=false,lastTouchX=0,lastTouchY=0,lastNetSend=0,toastTimer=0,walkPhase=0;
