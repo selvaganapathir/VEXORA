@@ -24,3 +24,15 @@ VEXORA should not scrape or redistribute Roblox marketplace/catalog assets or Ro
 ## Next production asset step
 
 Download the free glTF/GLB human base characters and animation clips, import them into `public/assets/characters` and `public/assets/animations`, validate the skeleton and clip retargeting in a local build, then bundle them with the game so gameplay does not depend on third-party runtime hosting.
+
+## Models now used by the live world scene
+
+The current Three.js scene loads these real GLB environment models from the CC0 pack listed above:
+
+- Kenney City Kit Suburban: building types A–K (modelled building exteriors).
+- Quaternius / Poly Pizza Stylized Nature GLTF: Tree, Pine, Twisted Tree and Dead Tree.
+- Model loader normalizes model height, enables shadows, caches loaded source scenes and clones them for repeated placements.
+- Source repository: https://github.com/petroulacl/fps-buildings-env-kit
+- Runtime asset origin: https://raw.githubusercontent.com/petroulacl/fps-buildings-env-kit/main/
+
+These models replace the previous large coloured box building placeholders and primitive tree trunks/crowns. They are streamed from the asset source, not copied into this repository yet. For production reliability, download only the selected GLBs and required textures, verify their pack-level attribution/CC0 notices, vendor them under `public/assets`, and pin a source commit.
