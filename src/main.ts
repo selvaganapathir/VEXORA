@@ -21,6 +21,19 @@ const groundMat=new THREE.MeshStandardMaterial({map:proceduralTexture('#547568',
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(420,420),groundMat); floor.rotation.x=-Math.PI/2; floor.position.y=-.08; floor.receiveShadow=true; scene.add(floor);
 const grid=new THREE.GridHelper(400,100,0x91afa0,0x718e80); grid.position.y=-.065; scene.add(grid);
 const world=new THREE.Group(); scene.add(world);
+
+// CC0 environment models from Kenney City Kit Suburban and Quaternius Stylized Nature MegaKit.
+// Remote GLBs are cached by the browser; failures leave the rest of the world playable.
+const assetLoader=new GLTFLoader();
+const assetBase='https://raw.githubusercontent.com/petroulacl/fps-buildings-env-kit/main/';
+const modelCache=new Map<string,THREE.Group>();
+function loadWorldModel(path:string,position:THREE.Vector3,targetHeight:number,rotation=0){
+ const cached=modelCache.get(path);
+ const place=(source:THREE.Group)=>{const clone=source.clone(true);const bounds=new THREE.Box3().setFromObject(clone);const size=bounds.getSize(new THREE.Vector3());const scale=targetHeight/Math.max(size.y,.001);clone.scale.multiplyScalar(scale);const fitted=new THREE.Box3().setFromObject(clone);clone.position.set(position.x-fitted.min.x,position.y-fitted.min.y,position.z-fitted.min.z);clone.rotation.y=rotation;clone.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}});world.add(clone);};
+ if(cached){place(cached);return;}
+ assetLoader.load(assetBase+path.split('/').map(encodeURIComponent).join('/'),g=>{modelCache.set(path,g.scene);place(g.scene);},undefined,e=>console.warn('Optional CC0 world model failed:',path,e));
+}
+
 function box(parent:THREE.Object3D,w:number,h:number,d:number,c:number,x:number,y:number,z:number){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);parent.add(m);return m;}
 function buildWorld(){
   // Expanded district: central plaza, roads, residential blocks, shops and park.
@@ -29,15 +42,18 @@ function buildWorld(){
   const cross=new THREE.Mesh(new THREE.PlaneGeometry(12,420),roadMat);cross.rotation.x=-Math.PI/2;cross.position.set(0,.006,0);world.add(cross);
   for(let i=-18;i<=18;i+=6){box(world,2.8,.025,.16,0xe4d6a6,i,.025,0);box(world,.16,.025,2.8,0xe4d6a6,0,.026,i);}
   const sidewalk=mat(0xb7b3a7);for(const side of [-1,1]){const walk=new THREE.Mesh(new THREE.PlaneGeometry(420,3),sidewalk);walk.rotation.x=-Math.PI/2;walk.position.set(side*7.7,.015,0);world.add(walk);}
-  const facade=[0x587f91,0x8b6b83,0x9b805e,0x557f70,0x64769b,0x9a6657,0x6c7891,0x8c8d68];
-  for(let z=-100;z<=100;z+=34){for(let x=-100;x<=100;x+=34){if(Math.abs(x)<24&&Math.abs(z)<24)continue;const w=12+(Math.abs(x+z)%5),d=12+(Math.abs(x-z)%5),h=9+(Math.abs(x*z)%13);const c=facade[Math.abs(Math.floor((x+z)/34))%facade.length];box(world,w,h,d,c,x,h/2,z);box(world,w+.3,.45,d+.3,0x354252,x,h+.2,z);for(let floorNo=1;floorNo<Math.floor(h/3);floorNo++){for(const side of [-1,1]){box(world,1.25,1.25,.08,0x9bd0d9,x+side*w*.27,floorNo*2.6,z-d/2-.05);box(world,.08,1.25,1.25,0x9bd0d9,x-w/2-.05,floorNo*2.6,z+side*d*.27);}}}}
+  // Replace the old coloured box-building placeholders with licensed, textured GLB buildings.
+  const buildingModels=['building-type-a.glb','building-type-b.glb','building-type-c.glb','building-type-d.glb','building-type-e.glb','building-type-f.glb','building-type-g.glb','building-type-h.glb','building-type-i.glb','building-type-j.glb','building-type-k.glb'];
+  let buildingIndex=0;
+  for(let z=-100;z<=100;z+=34){for(let x=-100;x<=100;x+=34){if(Math.abs(x)<24&&Math.abs(z)<24)continue;const file=buildingModels[buildingIndex++%buildingModels.length];loadWorldModel('buildings/kenney-city-kit-suburban/Models/GLB format/'+file,new THREE.Vector3(x,0,z),13+(Math.abs(x*z)%9),((buildingIndex%4)*Math.PI/2));}}
   // town square and market lane
   box(world,18,.22,12,0x9b9b91,0,0,-15); box(world,7,.08,52,0xb5a98e,0,.02,0);
   for(let i=0;i<5;i++){const x=-24+i*12; box(world,7,4+(i%3),7,[0x587f91,0x8b6b83,0x9b805e,0x557f70,0x64769b][i],x,2,-28); box(world,7.2,.35,7.2,0x343f50,x,4.1+(i%3),-28);}
   for(let i=0;i<4;i++){const x=-18+i*12; box(world,5,2.4,2,0x526c87,x,1.2,14); box(world,5,.18,2.1,0xe0b66b,x,2.5,14);}
   // benches, crates, lamps, flower beds
   for(let i=0;i<6;i++){const x=-20+i*8; box(world,2.4,.25,.55,0x79563c,x,.65,7); box(world,.18,.6,.18,0x3c4850,x-1,.3,7);box(world,.18,.6,.18,0x3c4850,x+1,.3,7);}
-  for(let i=0;i<28;i++){const x=Math.sin(i*2.2)*((i%3)*18+42),z=Math.cos(i*2.2)*((i%3)*18+42);box(world,1.3,1.3,1.3,0x8a6749,x,.65,z);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.22,.32,2.8,7),mat(0x684c38));trunk.position.set(x,1.4,z);world.add(trunk);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(2.1,1),mat([0x39765c,0x4d895c,0x668b56][i%3]));crown.position.set(x,3.5,z);world.add(crown);}
+  const treeFiles=['Tree.glb','Pine.glb','Twisted Tree.glb','Dead Tree.glb'];
+  for(let i=0;i<32;i++){const radius=44+(i%4)*18,x=Math.sin(i*2.2)*radius,z=Math.cos(i*2.2)*radius;const tree=treeFiles[i%treeFiles.length];loadWorldModel('environment/vegetation/polypizza-stylized-nature-gltf/'+tree,new THREE.Vector3(x,0,z),i%4===1?9:6.5,(i%7)*.72);}
   for(let i=0;i<18;i++){const x=-78+i*9;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,4,8),mat(0x37404a));pole.position.set(x,2,-8);world.add(pole);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.24,10,8),new THREE.MeshStandardMaterial({color:0xffe5a2,emissive:0xffb54a,emissiveIntensity:.8}));lamp.position.set(x,4,-8);world.add(lamp);}
 }
 buildWorld();
