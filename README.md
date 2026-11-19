@@ -4,8 +4,8 @@
 
 ## What's in this repository
 
-- Browser-playable third-person arena with keyboard, mouse and touch controls.
-- Low-poly world, simple practice opponents, health, respawn and elimination counter.
+- Browser-playable third-person world with keyboard, mouse and touch controls, sprint, crouch, jump, look and interaction.
+- Expanded town environment, articulated humanoid avatars with facial features and clothing, NPC health, respawn and elimination counter.
 - Optional WebSocket room server for player presence and position synchronisation.
 - GitHub Actions workflow to build and deploy the static browser client to GitHub Pages.
 
@@ -47,7 +47,7 @@ The included workflow builds on pushes to `main` and deploys the `dist` folder. 
 
 ## Performance
 
-The scene uses a compact low-poly environment and capped device pixel ratio. A 100 FPS target depends on device, browser, resolution, thermal state and network; it is not guaranteed. Profile on target phones and desktops before making performance claims.
+The scene uses a compact 3D environment, capped device pixel ratio and Low / Medium / High graphics presets. Players can adjust camera field of view and look sensitivity. The inventory preview includes selectable equipment. NPCs use lightweight autonomous routines to wander, guard, approach or retreat. A 100 FPS target depends on device, browser, resolution, thermal state and network; it is not guaranteed. Profile on target phones and desktops before making performance claims.
 
 ## Project status
 
