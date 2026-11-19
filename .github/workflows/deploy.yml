@@ -25,6 +25,9 @@ jobs:
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: vexora-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: dist
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: vexora-pages-${{ github.run_id }}-${{ github.run_attempt }}
