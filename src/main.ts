@@ -41,6 +41,34 @@ function loadWorldTile(path:string,position:THREE.Vector3,rotation=0,scale=1){
  if(cached){place(cached);return;}
  assetLoader.load(assetBase+path.split('/').map(encodeURIComponent).join('/'),g=>{modelCache.set(path,g.scene);place(g.scene);},undefined,e=>console.warn('Optional CC0 road tile failed:',path,e));
 }
+
+// Quaternius Medieval Village MegaKit (CC0) modular glTF assets.
+const medievalBase='https://raw.githubusercontent.com/J-Ponzo/gltf-medieval-village-megakit/main/glTF/';
+function loadMedievalPiece(file:string,position:THREE.Vector3,rotation=0){
+ const key='medieval:'+file;
+ const place=(source:THREE.Group)=>{
+  const clone=source.clone(true);clone.rotation.y=rotation;
+  const bounds=new THREE.Box3().setFromObject(clone),center=bounds.getCenter(new THREE.Vector3());
+  clone.position.set(position.x-center.x,position.y-bounds.min.y,position.z-center.z);
+  clone.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}});
+  world.add(clone);
+ };
+ const cached=modelCache.get(key);
+ if(cached){place(cached);return;}
+ assetLoader.load(medievalBase+file,g=>{modelCache.set(key,g.scene);place(g.scene);},undefined,e=>console.warn('Medieval village asset failed:',file,e));
+}
+function buildMedievalHouse(cx:number,cz:number){
+ for(const dx of [-1,1])for(const dz of [-1,1])loadMedievalPiece('Floor_Brick.gltf',new THREE.Vector3(cx+dx,0,cz+dz));
+ loadMedievalPiece('Wall_Plaster_Door_Round.gltf',new THREE.Vector3(cx-1,0,cz+2));
+ loadMedievalPiece('Wall_Plaster_Window_Wide_Round.gltf',new THREE.Vector3(cx+1,0,cz+2));
+ for(const x of [-1,1])loadMedievalPiece('Wall_Plaster_Straight.gltf',new THREE.Vector3(cx+x,0,cz-2),Math.PI);
+ for(const z of [-1,1]){
+  loadMedievalPiece('Wall_Plaster_Straight.gltf',new THREE.Vector3(cx-2,0,cz+z),Math.PI/2);
+  loadMedievalPiece('Wall_Plaster_Straight.gltf',new THREE.Vector3(cx+2,0,cz+z),-Math.PI/2);
+ }
+ loadMedievalPiece('Roof_RoundTiles_4x4.gltf',new THREE.Vector3(cx,3.12,cz));
+}
+
 function box(parent:THREE.Object3D,w:number,h:number,d:number,c:number,x:number,y:number,z:number){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);parent.add(m);return m;}
 function buildWorld(){
   // Expanded district: central plaza, roads, residential blocks, shops and park.
@@ -64,6 +92,14 @@ function buildWorld(){
   for(let i=0;i<32;i++){const radius=44+(i%4)*18,x=Math.sin(i*2.2)*radius,z=Math.cos(i*2.2)*radius;const tree=treeFiles[i%treeFiles.length];loadWorldModel('environment/vegetation/polypizza-stylized-nature-gltf/'+tree,new THREE.Vector3(x,0,z),i%4===1?9:6.5,(i%7)*.72);}
   // Street-light props are real CC0 GLB models rather than cylinders and spheres.
   for(let i=0;i<18;i++){const x=-78+i*9;loadWorldModel('props/kenney-city-kit-roads/Models/GLB format/light-square.glb',new THREE.Vector3(x,0,-8),5.2,Math.PI);}
+  // Medieval old-town quarter built from modular Quaternius CC0 village pieces.
+  buildMedievalHouse(138,126);
+  buildMedievalHouse(151,126);
+  buildMedievalHouse(144,140);
+  for(let i=0;i<9;i++)loadMedievalPiece('Floor_UnevenBrick.gltf',new THREE.Vector3(140+i*2,0,117));
+  loadMedievalPiece('Prop_Wagon.gltf',new THREE.Vector3(157,0,137),Math.PI/2);
+  loadMedievalPiece('Prop_Crate.gltf',new THREE.Vector3(154,0,137));
+  for(let i=0;i<8;i++)loadMedievalPiece('Prop_WoodenFence_Single.gltf',new THREE.Vector3(132+i*2,0,144),Math.PI/2);
 }
 buildWorld();
 
